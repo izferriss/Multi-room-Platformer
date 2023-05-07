@@ -1,22 +1,35 @@
 class Sprite
 {
-    constructor({pos, src, frameRate = 1, animations})
+    constructor
+    ({
+        pos,
+        src,
+        frameRate = 1,
+        animations,
+        frameBuffer = 2,
+        loop = true,
+        autoplay = true
+    })
     {
         this.pos = pos;
         this.image = new Image();
         this.image.onload = () =>
         {
             this.loaded = true;
-            this.w = this.image.width / this.frameRate,
-            this.h = this.image.height
+            this.w = this.image.width / this.frameRate;
+            this.h = this.image.height;
         };
         this.image.src = src;
         this.loaded = false;
         this.frameRate = frameRate;
         this.currentFrame = 0;
         this.elapsedFrames = 0;
-        this.frameBuffer = 2;
+        this.frameBuffer = frameBuffer;
         this.animations = animations;
+        this.loop = loop;
+        this.autoplay = autoplay;
+        this.currentAnimation;
+
         if(this.animations)
         {
             for(let key in this.animations)
@@ -57,8 +70,17 @@ class Sprite
         this.updateFrames();
     }
 
+    play()
+    {
+        this.autoplay = true;
+    }
+
     updateFrames()
     {
+        if(!this.autoplay)
+        {
+            return;
+        }
         this.elapsedFrames++;
 
         if(this.elapsedFrames % this.frameBuffer == 0)
@@ -67,9 +89,17 @@ class Sprite
             {
                 this.currentFrame++;
             }
-            else
+            else if(this.loop)
             {
                 this.currentFrame = 0;
+            }
+            if(this.currentAnimation?.onAnimationComplete)
+            {
+                if(this.currentFrame == this.frameRate - 1 && !this.currentFrame.isActive)
+                {
+                    this.currentAnimation.onAnimationComplete();
+                    this.currentAnimation.isActive = true;
+                }
             }
         }
     }
