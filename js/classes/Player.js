@@ -1,16 +1,16 @@
 class Player
 {
-    constructor()
+    constructor({collisionBlocks = []})
     {
         this.pos = 
         {
-            x: 100,
-            y: 100
+            x: canvas.width / 2,
+            y: canvas.height / 2
         };
         this.size =
         {
-            w: 100,
-            h: 100
+            w: BLOCK_SIZE,
+            h: BLOCK_SIZE
         };
         this.sides =
         {
@@ -24,6 +24,8 @@ class Player
         };
 
         this.gravity = 1;
+
+        this.collisionBlocks = collisionBlocks;
     }
 
     draw()
@@ -35,17 +37,74 @@ class Player
     update()
     {
         this.pos.x += this.velocity.x;
+        
+        this.checkForHorizontalCollisions();
+        this.applyGravity();
+        this.checkForVerticalCollisions();
+    }
+
+    checkForHorizontalCollisions()
+    {
+        for(let i = 0; i < this.collisionBlocks.length; i++)
+        {
+            const collisionBlock = this.collisionBlocks[i];
+
+            // if a collision exists
+            if(this.pos.x <= collisionBlock.pos.x + collisionBlock.size.w &&
+                this.pos.x + this.size.w >= collisionBlock.pos.x &&
+                this.pos.y + this.size.h >= collisionBlock.pos.y &&
+                this.pos.y <= collisionBlock.pos.y + collisionBlock.size.h)
+            {
+                // collision on x-axis moving to the left
+                if(this.velocity.x < 0)
+                {
+                    this.pos.x = collisionBlock.pos.x + collisionBlock.size.w + 0.001;
+                    break;
+                }
+                // collision on x-axis moving to the right
+                if(this.velocity.x > 0)
+                {
+                    this.pos.x = collisionBlock.pos.x - this.size.w - 0.001;
+                    break;
+                }
+            }
+        }
+    }
+
+    applyGravity()
+    {
+        this.velocity.y += this.gravity;
         this.pos.y += this.velocity.y;
         this.sides.bottom = this.pos.y + this.size.h;
+    }
 
-        // above bottom of canvas
-        if(this.sides.bottom + this.velocity.y < canvas.height)
+    checkForVerticalCollisions()
+    {
+        for(let i = 0; i < this.collisionBlocks.length; i++)
         {
-            this.velocity.y += this.gravity;
-        }
-        else
-        {
-            this.velocity.y = 0;
+            const collisionBlock = this.collisionBlocks[i];
+
+            // if a collision exists
+            if(this.pos.x <= collisionBlock.pos.x + collisionBlock.size.w &&
+                this.pos.x + this.size.w >= collisionBlock.pos.x &&
+                this.pos.y + this.size.h >= collisionBlock.pos.y &&
+                this.pos.y <= collisionBlock.pos.y + collisionBlock.size.h)
+            {
+                // collision on y-axis moving up
+                if(this.velocity.y < 0)
+                {
+                    this.velocity.y = 0;
+                    this.pos.y = collisionBlock.pos.y + collisionBlock.size.h + 0.001;
+                    break;
+                }
+                // collision on y-axis moving down
+                if(this.velocity.y > 0)
+                {
+                    this.velocity.y = 0;
+                    this.pos.y = collisionBlock.pos.y - this.size.h - 0.001;
+                    break;
+                }
+            }
         }
     }
 }
