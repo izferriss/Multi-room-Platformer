@@ -1,20 +1,18 @@
-class Player
+class Player extends Sprite
 {
-    constructor({collisionBlocks = []})
+    constructor({collisionBlocks = [], src, frameRate})
     {
+        super({src, frameRate});
+
         this.pos = 
         {
-            x: canvas.width / 2,
-            y: canvas.height / 2
+            x: 256,
+            y: 256
         };
-        this.size =
-        {
-            w: BLOCK_SIZE,
-            h: BLOCK_SIZE
-        };
+
         this.sides =
         {
-            bottom: this.pos.y + this.size.h
+            bottom: this.pos.y + this.h
         };
 
         this.velocity =
@@ -28,14 +26,10 @@ class Player
         this.collisionBlocks = collisionBlocks;
     }
 
-    draw()
-    {
-        ctx.fillStyle = "red";
-        ctx.fillRect(this.pos.x, this.pos.y, this.size.w, this.size.h);
-    }
-
     update()
     {
+        ctx.fillStyle = "rgba(0, 0, 255, 0.5)";
+        ctx.fillRect(this.pos.x, this.pos.y, this.w, this.h);
         this.pos.x += this.velocity.x;
         
         this.checkForHorizontalCollisions();
@@ -51,8 +45,8 @@ class Player
 
             // if a collision exists
             if(this.pos.x <= collisionBlock.pos.x + collisionBlock.size.w &&
-                this.pos.x + this.size.w >= collisionBlock.pos.x &&
-                this.pos.y + this.size.h >= collisionBlock.pos.y &&
+                this.pos.x + this.w >= collisionBlock.pos.x &&
+                this.pos.y + this.h >= collisionBlock.pos.y &&
                 this.pos.y <= collisionBlock.pos.y + collisionBlock.size.h)
             {
                 // collision on x-axis moving to the left
@@ -64,7 +58,7 @@ class Player
                 // collision on x-axis moving to the right
                 if(this.velocity.x > 0)
                 {
-                    this.pos.x = collisionBlock.pos.x - this.size.w - 0.001;
+                    this.pos.x = collisionBlock.pos.x - this.w - 0.001;
                     break;
                 }
             }
@@ -75,7 +69,7 @@ class Player
     {
         this.velocity.y += this.gravity;
         this.pos.y += this.velocity.y;
-        this.sides.bottom = this.pos.y + this.size.h;
+        this.sides.bottom = this.pos.y + this.h;
     }
 
     checkForVerticalCollisions()
@@ -86,8 +80,8 @@ class Player
 
             // if a collision exists
             if(this.pos.x <= collisionBlock.pos.x + collisionBlock.size.w &&
-                this.pos.x + this.size.w >= collisionBlock.pos.x &&
-                this.pos.y + this.size.h >= collisionBlock.pos.y &&
+                this.pos.x + this.w >= collisionBlock.pos.x &&
+                this.pos.y + this.h >= collisionBlock.pos.y &&
                 this.pos.y <= collisionBlock.pos.y + collisionBlock.size.h)
             {
                 // collision on y-axis moving up
@@ -101,7 +95,7 @@ class Player
                 if(this.velocity.y > 0)
                 {
                     this.velocity.y = 0;
-                    this.pos.y = collisionBlock.pos.y - this.size.h - 0.001;
+                    this.pos.y = collisionBlock.pos.y - this.h - 0.001;
                     break;
                 }
             }
